@@ -4,9 +4,10 @@
 
 #include "GPS/gps.h"
 #include "gpio.h"
-#include "unistd.h"
+#include <unistd.h>
 #include "i2c-dev.h"
 #include "Compass/compass.h" // booooooo
+#include <stdio.h>
 
 #define LEFT_FWD_GPIO 71
 #define LEFT_BCK_GPIO 73
@@ -40,18 +41,22 @@ int motorControl(enum motorOps direction, short active){
 	}
 }
 
-int turn(float heading){
+int testTurn(){
 	gpio_set_value(LEFT_FWD_GPIO, 1);
 	gpio_set_value(RIGHT_BCK_GPIO,1);
 	sleep(1);
 	gpio_set_value(LEFT_FWD_GPIO, 0);
 	gpio_set_value(RIGHT_BCK_GPIO,0);
+}
 
+int turn(float heading){
 	float currentHeading = getHeading(fd);
 	float deltaHeading = currentHeading - heading;
 
 	const int tolerance = 1;
-	while((deltaHeading < tolerance) || (deltaHeading - 360 > -tolerance)){
+	printf("deltaHeading: %f, tolerance: %d\n", deltaHeading, tolerance);
+	while(!((deltaHeading < tolerance) || (deltaHeading - 360 > -tolerance))){
+		//printf("In the if! We should be turning....\n");
 		if(deltaHeading > 0){
 			if(deltaHeading < 180){ //turn left
 				gpio_set_value(LEFT_BCK_GPIO, 1);
@@ -77,7 +82,7 @@ int turn(float heading){
 				gpio_set_value(RIGHT_BCK_GPIO, 0);
 			}
 		} 
-
+		//usleep(100);
 		deltaHeading = currentHeading - heading;
 	}
 	gpio_set_value(LEFT_FWD_GPIO, 0);
@@ -98,7 +103,9 @@ void main(int * argv){
 	fd = init_I2C();
 	init_compass(fd);
 	gpioInit();
-	turn(0);
+	//testTurn();
+	//turn(45.0);
+	testTurn();
 }
 
 
