@@ -39,6 +39,7 @@ float distanceBetweenPoints(point A, point B){
         return d;
 }
 
+//This needs to be fixed. I thought I had the conversion from +/- 90 to 360 working, but it isn't.
 float angleBetweenPoints(point A, point B){
         float deltax = B.x - A.x;
         float deltay = B.y - A.y;
