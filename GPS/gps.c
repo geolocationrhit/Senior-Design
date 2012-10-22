@@ -4,7 +4,7 @@
 typedef struct {
         float x;
         float y;
-} point;
+} gpsPoint;
 
 typedef struct {
         float latdegrees;
