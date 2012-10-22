@@ -17,20 +17,20 @@ typedef struct {
         char longcardinal;
 } coordinate;
 
-point convertGPSToPoint(coordinate location){
+gpsPoint convertGPSToPoint(coordinate location){
         float latdegrees = location.latdegrees + (location.latminutes/60) + (location.latseconds/3600);
         float longdegrees = location.longdegrees + (location.longminutes/60) + (location.longminutes/3600);
         if(location.latcardinal == 'S')
                 latdegrees = -latdegrees;
         if(location.longcardinal == 'W')
                 longdegrees = -longdegrees;
-        point result;
+        gpsPoint result;
         result.x = longdegrees;
         result.y = latdegrees;
         return result;
 }
 
-float distanceBetweenPoints(point A, point B){
+float distanceBetweenPoints(gpsPoint A, gpsPoint B){
         float deltax = (B.x - A.x) * d2r;
         float deltay = (B.y - A.y) * d2r;
         float a = pow(sin(deltay/2.0),2) + cos(A.y*d2r)*cos(B.y*d2r)*pow(sin(deltax/2.0),2);
@@ -40,7 +40,7 @@ float distanceBetweenPoints(point A, point B){
 }
 
 //This needs to be fixed. I thought I had the conversion from +/- 90 to 360 working, but it isn't.
-float angleBetweenPoints(point A, point B){
+float angleBetweenPoints(gpsPoint A, gpsPoint B){
         float deltax = B.x - A.x;
         float deltay = B.y - A.y;
         float angle = atan(deltay/deltax);
