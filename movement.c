@@ -3,6 +3,8 @@
 */
 
 #include "GPS/gps.h"
+#include "gpio.h"
+#include "unistd.h"
 
 #define LEFT_FWD_GPIO 71
 #define LEFT_BCK_GPIO 73
