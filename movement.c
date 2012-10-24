@@ -35,7 +35,11 @@ int motorControl(enum motorOps direction, short active){
 }
 
 int turn(float heading){
-
+	gpio_set_value(LEFT_FWD_GPIO, 1);
+	gpio_set_value(RIGHT_BCK_GPIO,1);
+	sleep(1);
+	gpio_set_value(LEFT_FWD_GPIO, 0);
+	gpio_set_value(RIGHT_BCK_GPIO,0);
 }
 
 short bbCheck(float m, float b, gpsPoint newGPSCoord, float tolerance){
