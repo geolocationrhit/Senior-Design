@@ -1,4 +1,4 @@
-#include "i2c-dev.h"
+#include "../i2c-dev.h"
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

@@ -15,13 +15,16 @@ movement.o: movement.c
 GPS/gps.o: GPS/gps.c
 	gcc $(CFLAGS) -c $^ -lm -o $@
 
+Compass/compass.o: Compass/compass.c
+	gcc $(CFLAGS) -c $^ -o $@
+
 gpio.o: gpio.c
 	gcc $(CFLAGS) -c $^ -o $@
 
-movement: movement.o gpio.o GPS/gps.o
+movement: movement.o gpio.o GPS/gps.o Compass/compass.o
 	gcc $(CFLAGS) $^ -lm -o $@
 
 cleanAll: 
-	rm movement movement.o gpio.o GPS/gps.o
+	rm movement movement.o gpio.o GPS/gps.o Compass/compass.o
 
 
