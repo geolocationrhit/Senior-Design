@@ -9,6 +9,7 @@
 #include "Compass/compass.h" // booooooo
 #include <stdio.h>
 #include <signal.h>
+#include <stdlib.h>
 
 #define LEFT_BCK_GPIO 71
 #define LEFT_FWD_GPIO 73
@@ -51,13 +52,37 @@ int testTurn(){
 	gpio_set_value(RIGHT_BCK_GPIO,0);
 }
 
+float wrap180(float angle){
+	if (angle > 180.0) angle -= 360.0;
+	else if (angle < -180.0) angle += 360.0;
+	return angle;
+}
+
 int turn(float heading){
 	float currentHeading = getHeading(fd);
-	float deltaHeading = currentHeading - heading;
+	float deltaHeading = wrap180(heading - currentHeading); // deltaheading: negative means turn left, positive means turn right
 
-	const int tolerance = 1;
-	printf("deltaHeading: %f, tolerance: %d\n", deltaHeading, tolerance);
-	while(abs(currentHeading - heading) > tolerance && currentHeading heading - 360
+
+	const int tolerance = 20;
+	printf("deltaHeading: %f, currentHeading: %f, tolerance: %d\n", deltaHeading, currentHeading, tolerance);
+	//while(abs((int) deltaHeading) > tolerance && keepGoing){
+	while(keepGoing){
+		if(deltaHeading > 0){ //turn right
+			printf("deltaHeading positive: %f, currentHeading: %f\n", deltaHeading, currentHeading);
+			gpio_set_value(LEFT_FWD_GPIO, 1);
+			gpio_set_value(LEFT_BCK_GPIO, 0);
+			gpio_set_value(RIGHT_BCK_GPIO, 1);
+			gpio_set_value(RIGHT_FWD_GPIO, 0); 		
+		} else { // turn left
+			printf("deltaHeading negative: %f, currentHeading: %f\n", deltaHeading, currentHeading);
+			gpio_set_value(LEFT_BCK_GPIO, 1);
+			gpio_set_value(LEFT_FWD_GPIO, 0);
+			gpio_set_value(RIGHT_FWD_GPIO, 1);
+			gpio_set_value(RIGHT_BCK_GPIO, 0);			
+		}
+		currentHeading = getHeading(fd);
+		deltaHeading = wrap180(heading - currentHeading);
+	}
 /*	while(!((deltaHeading < tolerance) || (deltaHeading - 360 > -tolerance)) && keepGoing){
 		//printf("In the if! We should be turning....\n");
 		if(deltaHeading > 0){
