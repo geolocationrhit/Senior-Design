@@ -1,6 +1,17 @@
 import SocketServer
 import sys
 
+def computeNewLocation(mobilePlatformNumber):
+	#computeAlgorithm()
+	return (12.01910220, 18.192010201)
+
+def newLocationMessage():
+	newLocation = computeNewLocation(0)
+	return "<NWP>{0} {1}</NWP>\n".format(newLocation[0],newLocation[1])
+
+def newMovementCommand():
+	return "<MOVCMD>FWD 1.0 RIGHT 0.5</MOVCMD>\n"
+
 class MyTCPHandler(SocketServer.BaseRequestHandler):
 	"""
 	The RequestHandler class for our server.
@@ -16,7 +27,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 		print "{} wrote:".format(self.client_address[0])
 		print self.data
 		# just send back the same data, but upper-cased
-		self.request.sendall("Hello\nThis is a test")
+		self.request.sendall(newLocationMessage() + newMovementCommand())
 
 if __name__ == "__main__":
 	if len(sys.argv) == 3:
