@@ -1,16 +1,11 @@
 import SocketServer
 import sys
 
-def computeNewLocation(mobilePlatformNumber):
-	#computeAlgorithm()
-	return (12.01910220, 18.192010201)
-
-def newLocationMessage():
-	newLocation = computeNewLocation(0)
-	return "<NWP>{0} {1}</NWP>\n".format(newLocation[0],newLocation[1])
-
-def newMovementCommand():
-	return "<MOVCMD>FWD 1.0 RIGHT 0.5</MOVCMD>\n"
+"""
+#may be useful for determining IP address
+import commands
+commands.getoutput("/sbin/ifconfig").split("\n")[1].split()[1][5:]
+""" 
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
 	"""
@@ -26,8 +21,11 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 		self.data = self.request.recv(1024).strip()
 		print "{} wrote:".format(self.client_address[0])
 		print self.data
+		while(self.data != ""):
+			self.data = self.request.recv(1024).strip()
+			print self.data
 		# just send back the same data, but upper-cased
-		self.request.sendall(newLocationMessage() + newMovementCommand())
+		#self.request.sendall("Hello\nThis is a test")
 
 if __name__ == "__main__":
 	if len(sys.argv) == 3:
