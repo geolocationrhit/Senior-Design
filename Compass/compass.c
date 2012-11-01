@@ -7,7 +7,7 @@
 #include <poll.h>
 
 //This is the address of the Compass on the I2C Bus
-#define ADDRESS 0x21
+#define ADDRESS 0x22
 
 int init_I2C(void){
         int fd;
