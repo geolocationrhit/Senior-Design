@@ -1,7 +1,9 @@
 typedef struct {
-	float x;
-	float y;
+	double x;
+	double y;
 } waypoint;
 
 int addWaypoint(waypoint);
-waypoint getCurrentWaypoint();
+waypoint * getCurrentWaypoint(void);
+int addWaypointxy(double, double);
+int getNumberOfWaypoints(void);

@@ -12,6 +12,13 @@
 waypoint waypointList[100] = {0};
 int numberOfWaypoints = 0;
 
+int addWaypointxy(double x, double y){
+	waypoint newwp;
+	newwp.x = x;
+	newwp.y = y;
+	return addWaypoint(newwp);
+}
+
 int addWaypoint(waypoint newWaypoint){
 	if(numberOfWaypoints < 100){
 		waypointList[numberOfWaypoints] = newWaypoint;
@@ -21,7 +28,12 @@ int addWaypoint(waypoint newWaypoint){
 	else
 		return -1;
 }
-waypoint getCurrentWaypoint(){
-	return waypointList[numberOfWaypoints - 1];
+waypoint * getCurrentWaypoint(void){
+	if(numberOfWaypoints <= 0)
+		return NULL;
+	return &waypointList[numberOfWaypoints - 1];
 }
 
+int getNumberOfWaypoints(void){
+	return numberOfWaypoints;
+}

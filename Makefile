@@ -4,7 +4,7 @@ CC:=/usr/bin/gcc
 CFLAGS := -g -std=c99
 
 .PHONY: all
-all: movement
+all: movement sharedLibs
 
 .PHONY: clean
 clean: cleanAll
@@ -24,7 +24,13 @@ gpio.o: gpio.c
 movement: movement.o gpio.o GPS/gps.o Compass/compass.o
 	gcc $(CFLAGS) $^ -lm -o $@
 
+.PHONY: sharedLibs
+sharedLibs: Compass/compass.c GPSLib/gps.c
+	gcc -shared -fPIC -o sharedLibs/compassLib.so Compass/compass.c
+	gcc -shared -fPIC -o sharedLibs/gpsLib.so GPSLib/gps.c
+	gcc -shared -fPIC -o sharedLibs/waypointLib.so Waypoints/waypoint.c
+
 cleanAll: 
-	rm movement movement.o gpio.o GPS/gps.o Compass/compass.o
+	rm movement movement.o gpio.o GPS/gps.o Compass/compass.o sharedLibs/*
 
 
