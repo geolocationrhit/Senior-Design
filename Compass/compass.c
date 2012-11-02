@@ -1,11 +1,11 @@
-#include "../i2c-dev.h"
+#include "i2c-dev.h"
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
-
+#include "compass.h"
 //This is the address of the Compass on the I2C Bus
 #define ADDRESS 0x22
 

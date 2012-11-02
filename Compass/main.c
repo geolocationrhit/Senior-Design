@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
-#include "compass.c"
+#include "compass.h"
 
 int main(int argc, char *argv){
         int fd = init_I2C();
