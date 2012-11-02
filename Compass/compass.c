@@ -30,6 +30,19 @@ void init_compass(int fd){
     			fprintf(stderr, "Failed to set to continous mode: %m\n");
 }
 
+void calibrate_compass(int fd){
+	char buf[10] = {0};
+	buf[0] = 'C';
+	if(write(fd,buf,1)!=1)
+			fprintf(stderr, "Failed to start calibration: %m\n");
+	printf("Calibration started\n\r");
+	sleep(10);
+	buf[0] = 'E';
+	if(write(fd,buf,1)!=1)
+			fprintf(stderr, "Failed to exit calibration: %m\n");
+	printf("Calibration complete\n\r");
+}
+
 float getHeading(int fd){
         char data[10] = {0};
         if(read(fd,data,2)!=2)
