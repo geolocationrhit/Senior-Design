@@ -26,7 +26,26 @@ print "Connecting to " + TCP_IP + " on port " + str(TCP_PORT)
 s.connect((TCP_IP, TCP_PORT))
 #s.send(MESSAGE)
 #s.send(newMovementCommand("FWD", 2*pow(10,6)))
-s.send(newMovementCommand("TURN", 46.204))
+while True:
+	sel = raw_input("Selection: \r\n1: FWD\r\n2: BCK\r\n3: TURN\r\n9: EXIT\r\n")
+	if sel == 'EXIT' or sel == '9':
+		break
+	opt = raw_input("\r\nOption: ")
+	if sel == 'FWD' or sel == '1':
+		cmd = newMovementCommand("FWD", int(float(opt)*pow(10,6)))
+		print "Sending command " + cmd	
+		s.send(cmd)
+	elif sel == 'BACK' or sel == '2':
+		cmd = newMovementCommand("BACK", int(float(opt)*pow(10,6)))
+		print "Sending command " + cmd	
+		s.send(cmd)
+	elif sel == 'TURN' or sel == '3':
+		cmd = newMovementCommand("TURN", float(opt))
+		print "Sending command " + cmd	
+		s.send(cmd)
+	else:
+		print "Command not recognized"
+
 data = s.recv(BUFFER_SIZE)
 print "received data:", data
 s.close()
