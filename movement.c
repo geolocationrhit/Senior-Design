@@ -2,7 +2,7 @@
 *	This is going to be written without any bugs 
 */
 
-#include "GPS/gps.h"
+//#include "GPS/gps.h"
 #include "gpio.h"
 #include <unistd.h>
 #include "i2c-dev.h"
@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
+#include "Waypoints/waypoint.h"
+#include "GPSLib/gps.h"
 
 #define LEFT_BCK_GPIO 71
 #define LEFT_FWD_GPIO 73
@@ -89,40 +91,7 @@ int turn(float heading){
 		currentHeading = getHeading(fd);
 		deltaHeading = wrap180(heading - currentHeading);
 	}
-/*	while(!((deltaHeading < tolerance) || (deltaHeading - 360 > -tolerance)) && keepGoing){
-		//printf("In the if! We should be turning....\n");
-		if(deltaHeading > 0){
-			printf("deltaHeading positive: %f, currentHeading: %f\n", deltaHeading, currentHeading);
-			if(deltaHeading < 180){ //turn left
-				gpio_set_value(LEFT_BCK_GPIO, 1);
-				gpio_set_value(LEFT_FWD_GPIO, 0);
-				gpio_set_value(RIGHT_FWD_GPIO, 1);
-				gpio_set_value(RIGHT_BCK_GPIO, 0);
-			} else { //turn right
-				gpio_set_value(LEFT_FWD_GPIO, 1);
-				gpio_set_value(LEFT_BCK_GPIO, 0);
-				gpio_set_value(RIGHT_BCK_GPIO, 1);
-				gpio_set_value(RIGHT_FWD_GPIO, 0);
-			}
-		} else {
-			printf("deltaHeading negative: %f, currentHeading: %f\n", deltaHeading, currentHeading);
-			if(deltaHeading < 180){ //turn right
-				gpio_set_value(LEFT_FWD_GPIO, 1);
-				gpio_set_value(LEFT_BCK_GPIO, 0);
-				gpio_set_value(RIGHT_BCK_GPIO, 1);
-				gpio_set_value(RIGHT_FWD_GPIO, 0); 
-			} else { //turn left
-				gpio_set_value(LEFT_BCK_GPIO, 1);
-				gpio_set_value(LEFT_FWD_GPIO, 0);
-				gpio_set_value(RIGHT_FWD_GPIO, 1);
-				gpio_set_value(RIGHT_BCK_GPIO, 0);
-			}
-		} 
-		//usleep(100);
-		currentHeading = getHeading(fd);
-		deltaHeading = currentHeading - heading;
-	}
-*/
+
 	gpio_set_value(LEFT_FWD_GPIO, 0);
 	gpio_set_value(LEFT_BCK_GPIO, 0);
 	gpio_set_value(RIGHT_FWD_GPIO, 0);
@@ -130,21 +99,21 @@ int turn(float heading){
 }
 
 // 0.000011479429428388439 gps points per meter
-short bbCheck(double m, double b, gpsPoint newGPSCoord, double tolerance){ // tolerance in meters
-	return newGPSCoord.x + (newGPSCoord.y + b)/((double) m) < tolerance * 0.000011479429428388439;
+short bbCheck(double m, double b, waypoint newWPCoord, double tolerance){ // tolerance in meters
+	return newWPCoord.x + (newWPCoord.y + b)/((double) m) < tolerance * 0.000011479429428388439;
 }
 
-double findSlope(gpsPoint currentPos, gpsPoint newPos){
+double findSlope(waypoint currentPos, waypoint newPos){
 	return (newPos.y - currentPos.y)/(newPos.x - currentPos.x);
 }
 
-double * findIntercept(gpsPoint currentPos, gpsPoint newPos, double * mb){ //mb needs to have space for two doubles
+double * findLine(waypoint currentPos, waypoint newPos, double * mb){ //mb needs to have space for two doubles
 	mb[0] = findSlope(currentPos, newPos);
 	mb[1] = currentPos.y - mb[0]*currentPos.x;
 	return mb;
 }
 
-int move(gpsPoint gpsCoord){
+int move(waypoint gpsCoord){
 	int originalLineM, originalLineB;
 }	
 
@@ -156,6 +125,74 @@ void signal_handler(int sig)
 	gpio_set_value(RIGHT_FWD_GPIO, 0);
 	gpio_set_value(RIGHT_BCK_GPIO, 0);
 	keepGoing = 0;
+}
+
+// 0.000011479429428388439 gps points per meter
+void wayPointManager(void){
+	waypoint * newWP;	
+	dataGPS  * curPosGPS;
+	int gpsRet;
+	float turnHeading;
+	double tolerance = 3; // tolerance in meters
+
+	addWaypointxy(-87.322640, 39.483910);
+	newWP = getCurrentWaypoint();
+
+	gpsRet = init_GPS();
+	*curPosGPS = getGPS(gpsRet);
+	if(!curPosGPS->valid){
+		for(int i = 0; i < 10 && !curPosGPS->valid; i++){
+			sleep(5);
+			printf("\r\nWaiting for valid GPS data....\r\n");
+			*curPosGPS = getGPS(gpsRet);
+		}
+	}
+	waypoint * curPosWP;
+	curPosWP->x = curPosGPS->x;
+	curPosWP->y = curPosGPS->y;
+	turnHeading = angleBetweenPoints(*newWP, *curPosWP);
+	turn(turnHeading);
+	// at this point we should be pointing in the right direction
+
+	double line_mb[2];
+	findLine(*curPosWP, * newWP, line_mb);
+
+	printf("\r\nCurrent position: x %lf, y %lf\r\n", curPosWP->x, curPosWP->y);
+	printf("Waypoint to move to: x %lf, y %lf\r\n", newWP->x, newWP->y);
+	printf("Turn heading: %f\r\n", turnHeading);
+	printf("Line: m %lf, b %lf\r\n", line_mb[0], line_mb[1]);
+
+	while(keepGoing){
+		while(keepGoing && distanceBetweenPoints(*curPosWP, *newWP) > tolerance*0.000011479429428388439){
+			// go straight		
+			printf("Going straight\r\ndistance to target: %lf\r\ntolerance: %lf\r\n", distanceBetweenPoints(*curPosWP, *newWP), tolerance*0.000011479429428388439);
+			gpio_set_value(LEFT_FWD_GPIO, 1);
+			gpio_set_value(LEFT_BCK_GPIO, 0);
+			gpio_set_value(RIGHT_FWD_GPIO, 1);
+			gpio_set_value(RIGHT_BCK_GPIO, 0);	
+
+			*curPosGPS = getGPS(gpsRet);
+			waypoint * curPosWP;
+			curPosWP->x = curPosGPS->x;
+			curPosWP->y = curPosGPS->y;
+
+			if(!bbCheck(line_mb[0], line_mb[1], * curPosWP, tolerance)){
+				returnToPreviousWaypoint();
+				printf("We're outside of the bounds. Returning to the previous waypoint\r\n");
+				break; // out of the bounding box
+			}
+		}
+		printf("We've hit the waypoint! Stopping the motors...\r\n");
+		gpio_set_value(LEFT_FWD_GPIO, 0);
+		gpio_set_value(LEFT_BCK_GPIO, 0);
+		gpio_set_value(RIGHT_FWD_GPIO, 0);
+		gpio_set_value(RIGHT_BCK_GPIO, 0);
+
+		keepGoing = (advanceToNextWaypoint() != -1); // don't keep going if we've reached the end of the waypoints
+		newWP = getCurrentWaypoint(); 	// if we've already advanced past the end this will give us the last WP, but 
+						// we will break out of this loop anyway
+		printf("KeepGoing: %d...should be 0 if we've hit the end of the waypoints", keepGoing);
+	}
 }
 
 void main(int * argv){
