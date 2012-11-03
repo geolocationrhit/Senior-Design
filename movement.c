@@ -50,6 +50,12 @@ int testTurn(){
 	sleep(1);
 	gpio_set_value(LEFT_FWD_GPIO, 0);
 	gpio_set_value(RIGHT_BCK_GPIO,0);
+
+	gpio_set_value(LEFT_BCK_GPIO, 1);
+	gpio_set_value(RIGHT_FWD_GPIO,1);
+	sleep(1);
+	gpio_set_value(LEFT_BCK_GPIO, 0);
+	gpio_set_value(RIGHT_FWD_GPIO,0);
 }
 
 float wrap180(float angle){
@@ -63,18 +69,18 @@ int turn(float heading){
 	float deltaHeading = wrap180(heading - currentHeading); // deltaheading: negative means turn left, positive means turn right
 
 
-	const int tolerance = 20;
+	const int tolerance = 5;
 	printf("deltaHeading: %f, currentHeading: %f, tolerance: %d\n", deltaHeading, currentHeading, tolerance);
 	//while(abs((int) deltaHeading) > tolerance && keepGoing){
-	while(keepGoing){
+	while(keepGoing && abs(deltaHeading) > tolerance){
 		if(deltaHeading > 0){ //turn right
-			printf("deltaHeading positive: %f, currentHeading: %f\n", deltaHeading, currentHeading);
+			printf("**turning right**deltaHeading positive: %f, currentHeading: %f\n", deltaHeading, currentHeading);
 			gpio_set_value(LEFT_FWD_GPIO, 1);
 			gpio_set_value(LEFT_BCK_GPIO, 0);
 			gpio_set_value(RIGHT_BCK_GPIO, 1);
 			gpio_set_value(RIGHT_FWD_GPIO, 0); 		
 		} else { // turn left
-			printf("deltaHeading negative: %f, currentHeading: %f\n", deltaHeading, currentHeading);
+			printf("**turning left**deltaHeading negative: %f, currentHeading: %f\n", deltaHeading, currentHeading);
 			gpio_set_value(LEFT_BCK_GPIO, 1);
 			gpio_set_value(LEFT_FWD_GPIO, 0);
 			gpio_set_value(RIGHT_FWD_GPIO, 1);
@@ -149,6 +155,11 @@ void main(int * argv){
 	gpioInit();
 	//testTurn();
 	turn(45.0);
+	sleep(1);
+	turn(280.0);
+	sleep(1);
+	turn(310.0);
+	turn(180.0);
 	//testTurn();
 }
 
