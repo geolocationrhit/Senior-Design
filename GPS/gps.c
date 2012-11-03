@@ -36,7 +36,6 @@ float distanceBetweenPoints(gpsPoint A, gpsPoint B){
 float angleBetweenPoints(gpsPoint A, gpsPoint B){
 	float deltax = B.x - A.x;
 	float deltay = B.y - A.y;
-	//float angle = atan(deltay/deltax);
 	float angle = atan2(deltax,deltay) * 180 / pi + 180;
 	if(angle > 0){
 	if(deltay > 0)

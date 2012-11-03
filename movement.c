@@ -3,6 +3,7 @@
 */
 
 //#include "GPS/gps.h"
+#include <string.h>
 #include "gpio.h"
 #include <unistd.h>
 #include "i2c-dev.h"
@@ -128,28 +129,29 @@ void signal_handler(int sig)
 }
 
 // 0.000011479429428388439 gps points per meter
-void wayPointManager(void){
-	waypoint * newWP;	
-	dataGPS  * curPosGPS;
+void waypointManager(void){
+	waypoint * newWP = (waypoint *) malloc(sizeof(waypoint));	
+	dataGPS  curPosGPS;
 	int gpsRet;
 	float turnHeading;
 	double tolerance = 3; // tolerance in meters
-
+	printf("Beginning\r\n");
 	addWaypointxy(-87.322640, 39.483910);
 	newWP = getCurrentWaypoint();
-
+	printf("\r\nTrying to initialize GPS");
 	gpsRet = init_GPS();
-	*curPosGPS = getGPS(gpsRet);
-	if(!curPosGPS->valid){
-		for(int i = 0; i < 10 && !curPosGPS->valid; i++){
+	curPosGPS = getGPS(gpsRet);
+
+	if(!curPosGPS.valid){
+		for(int i = 0; i < 10 && !curPosGPS.valid; i++){
 			sleep(5);
 			printf("\r\nWaiting for valid GPS data....\r\n");
-			*curPosGPS = getGPS(gpsRet);
+			curPosGPS = getGPS(gpsRet);
 		}
 	}
-	waypoint * curPosWP;
-	curPosWP->x = curPosGPS->x;
-	curPosWP->y = curPosGPS->y;
+	waypoint * curPosWP = (waypoint *) malloc(sizeof(waypoint));
+	curPosWP->x = curPosGPS.x;
+	curPosWP->y = curPosGPS.y;
 	turnHeading = angleBetweenPoints(*newWP, *curPosWP);
 	turn(turnHeading);
 	// at this point we should be pointing in the right direction
@@ -161,20 +163,19 @@ void wayPointManager(void){
 	printf("Waypoint to move to: x %lf, y %lf\r\n", newWP->x, newWP->y);
 	printf("Turn heading: %f\r\n", turnHeading);
 	printf("Line: m %lf, b %lf\r\n", line_mb[0], line_mb[1]);
-
-	while(keepGoing){
-		while(keepGoing && distanceBetweenPoints(*curPosWP, *newWP) > tolerance*0.000011479429428388439){
+	int waypointsLeft = 1;
+	while(keepGoing && waypointsLeft){
+		while(keepGoing && distanceBetweenPoints(*curPosWP, *newWP) > tolerance){
 			// go straight		
-			printf("Going straight\r\ndistance to target: %lf\r\ntolerance: %lf\r\n", distanceBetweenPoints(*curPosWP, *newWP), tolerance*0.000011479429428388439);
-			gpio_set_value(LEFT_FWD_GPIO, 1);
+			printf("Going straight\r\ndistance to target: %lf\r\ntolerance: %lf\r\n", distanceBetweenPoints(*curPosWP, *newWP), tolerance);
+			//gpio_set_value(LEFT_FWD_GPIO, 1);
 			gpio_set_value(LEFT_BCK_GPIO, 0);
-			gpio_set_value(RIGHT_FWD_GPIO, 1);
+			//gpio_set_value(RIGHT_FWD_GPIO, 1);
 			gpio_set_value(RIGHT_BCK_GPIO, 0);	
 
-			*curPosGPS = getGPS(gpsRet);
-			waypoint * curPosWP;
-			curPosWP->x = curPosGPS->x;
-			curPosWP->y = curPosGPS->y;
+			curPosGPS = getGPS(gpsRet);
+			curPosWP->x = curPosGPS.x;
+			curPosWP->y = curPosGPS.y;
 
 			if(!bbCheck(line_mb[0], line_mb[1], * curPosWP, tolerance)){
 				returnToPreviousWaypoint();
@@ -188,11 +189,13 @@ void wayPointManager(void){
 		gpio_set_value(RIGHT_FWD_GPIO, 0);
 		gpio_set_value(RIGHT_BCK_GPIO, 0);
 
-		keepGoing = (advanceToNextWaypoint() != -1); // don't keep going if we've reached the end of the waypoints
+		waypointsLeft = (advanceToNextWaypoint() != -1); // don't keep going if we've reached the end of the waypoints
 		newWP = getCurrentWaypoint(); 	// if we've already advanced past the end this will give us the last WP, but 
 						// we will break out of this loop anyway
 		printf("KeepGoing: %d...should be 0 if we've hit the end of the waypoints", keepGoing);
 	}
+	free(curPosWP);
+	free(newWP);
 }
 
 void main(int * argv){
@@ -202,12 +205,14 @@ void main(int * argv){
 	init_compass(fd);
 	gpioInit();
 	//testTurn();
-	turn(45.0);
+	/**turn(45.0);
 	sleep(1);
 	turn(280.0);
 	sleep(1);
 	turn(310.0);
 	turn(180.0);
+	**/
+	waypointManager();
 	//testTurn();
 }
 

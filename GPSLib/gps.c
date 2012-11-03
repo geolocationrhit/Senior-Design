@@ -97,10 +97,10 @@ dataGPS getGPS(int serial_file){
 		if(longpos == 'W')
 			temp.x = -temp.x;
 	}
-	//temp.x = (int)temp.x/100 + ((int)temp.x%100 + temp.x - (int)temp.x)/60.0;
-	//temp.y = (int)temp.y/100 + ((int)temp.y%100 + temp.y - (int)temp.y)/60.0;
-	temp.valid = 1;
-	temp.x = -87.322740;
-	temp.y = 39.483990;
+	temp.x = (int)temp.x/100 + ((int)temp.x%100 + temp.x - (int)temp.x)/60.0;
+	temp.y = (int)temp.y/100 + ((int)temp.y%100 + temp.y - (int)temp.y)/60.0;
+	//temp.valid = 1;
+	//temp.x = -87.322740;
+	//temp.y = 39.483990;
 	return temp;
 }
