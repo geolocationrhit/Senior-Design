@@ -13,12 +13,19 @@
 int init_GPS(void){
         int serial_file;
 	FILE *config_location;
-	if((config_location = fopen ("/sys/kernel/debug/omap_mux/uart1_txd","ab")) == NULL)
+	if((config_location = fopen ("/sys/kernel/debug/omap_mux/uart1_txd","rb+")) == NULL)
 		printf("Cannot set TX");
-	fprintf(config_location,"%d\n\r",0);
-	if((config_location = fopen ("/sys/kernel/debug/omap_mux/uart1_rxd","ab")) == NULL)
+	char str[5] = {0};
+	strcpy(str,"0");
+	rewind(config_location);
+	fwrite(&str,sizeof(char),strlen(str),config_location);
+	fclose(config_location);
+	if((config_location = fopen ("/sys/kernel/debug/omap_mux/uart1_rxd","rb+")) == NULL)
 		printf("Cannot set RX");
-	fprintf(config_location,"%d\n\r",20);
+	strcpy(str,"20");
+	rewind(config_location);
+	fwrite(&str,sizeof(char),strlen(str),config_location);
+	fclose(config_location);
         serial_file = open( "/dev/ttyO1", O_RDWR);
 	if(serial_file == -1)
 		 fprintf(stderr, "Failed to open UART1: %m\n");
@@ -77,7 +84,7 @@ dataGPS getGPS(int serial_file){
 		if(!(read(serial_file,data,100)> 0))
 		        fprintf(stderr,"Failed to read GPS: %m\n");
 		if(!strncmp(data, "$GPGLL",6)) {
-			if((matches = sscanf(data,"%6s,%f,%c,%f,%c,%f,%c",start,&temp.y,&latpos,&temp.x,&longpos,&temp.time,&isValid)) == 0){
+			if((matches = sscanf(data,"%6s,%lf,%c,%lf,%c,%lf,%c",start,&temp.y,&latpos,&temp.x,&longpos,&temp.time,&isValid)) == 0){
 				printf("Yeah, that last thing was bogus");
 			}
 	break;
@@ -91,6 +98,8 @@ dataGPS getGPS(int serial_file){
 		if(longpos == 'W')
 			temp.x = -temp.x;
 	}
+	temp.x = (int)temp.x/100 + ((int)temp.x%100 + temp.x - (int)temp.x)/60.0;
+	temp.y = (int)temp.y/100 + ((int)temp.y%100 + temp.y - (int)temp.y)/60.0;
 	return temp;
 }
 

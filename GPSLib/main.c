@@ -16,5 +16,5 @@ dataGPS fake = getGPS(serial_file);
 if(fake.valid == 0)
 	printf("Invalid GPS Point\n\r");
 else
-	printf("X: %f Y: %f Time: %f\n\r",fake.x, fake.y, fake.time);
+	printf("X: %2.10lf Y: %2.10lf Time: %lf\n\r",fake.x, fake.y, fake.time);
 }

@@ -1,7 +1,7 @@
 typedef struct {
-	float x;
-	float y;
-	float time;
+	double x;
+	double y;
+	double time;
 	int valid;
 } dataGPS;
 
