@@ -13,18 +13,22 @@
 
 int main(int argc, char *argv){
 	waypoint w1;
-	w1.x = 1;
-	w1.y = 1;
-	addWaypointxy(1.0,2.0);
-	waypoint * returned = getCurrentWaypoint();
-	printf("x: %f y: %f\r\n",returned->x, returned->y);
+	w1.x = 0;
+	w1.y = 0;
+	//addWaypointxy(1.0,2.0);
+	//waypoint * returned = getCurrentWaypoint();
+	//printf("x: %f y: %f\r\n",returned->x, returned->y);
 	waypoint w2;
-	w2.x = 1.37928374987234;
-	w2.y = 1.23472934792374923479234;
-	addWaypoint(w2);
+	w2.x = 2;
+	w2.y = 1;
+	/*addWaypoint(w2);
 	waypoint * returned2 = getCurrentWaypoint();
 	printf("x: %f y: %f\r\n",returned2->x, returned2->y);
 	waypoint * returned3 = getCurrentWaypoint();
 	printf("x: %f y: %f\r\n",returned3->x, returned3->y);
+	*/
+	float angle = angleBetweenPoints(w1,w2);
+	printf("\n\rAngle: %f\n\r",angle);
+
 	
 }

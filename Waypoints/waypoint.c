@@ -69,17 +69,8 @@ float angleBetweenPoints(waypoint A, waypoint B){
 	float deltax = B.x - A.x;
 	float deltay = B.y - A.y;
 	//float angle = atan(deltay/deltax);
-	float angle = atan2(deltax,deltay) * 180 / pi + 180;
-	if(angle > 0){
-	if(deltay > 0)
-		return angle;
-	else
-		return 180 + angle;	
-	}
-	else {
-	if (deltax > 0)
-		return 180 + angle;
-	else 
-		return 360 + angle;
-	}
+	float angle = atan2(deltax,deltay) * 180 / pi;
+	if (angle < 0)
+		angle = angle + 360;
+        return angle;
 }
