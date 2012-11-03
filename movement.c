@@ -129,8 +129,19 @@ int turn(float heading){
 	gpio_set_value(RIGHT_BCK_GPIO, 0);
 }
 
-short bbCheck(float m, float b, gpsPoint newGPSCoord, float tolerance){
-	return newGPSCoord.x + (newGPSCoord.y + b)/((float) m) < tolerance;
+// 0.000011479429428388439 gps points per meter
+short bbCheck(double m, double b, gpsPoint newGPSCoord, double tolerance){ // tolerance in meters
+	return newGPSCoord.x + (newGPSCoord.y + b)/((double) m) < tolerance * 0.000011479429428388439;
+}
+
+double findSlope(gpsPoint currentPos, gpsPoint newPos){
+	return (newPos.y - currentPos.y)/(newPos.x - currentPos.x);
+}
+
+double * findIntercept(gpsPoint currentPos, gpsPoint newPos, double * mb){ //mb needs to have space for two doubles
+	mb[0] = findSlope(currentPos, newPos);
+	mb[1] = currentPos.y - mb[0]*currentPos.x;
+	return mb;
 }
 
 int move(gpsPoint gpsCoord){
