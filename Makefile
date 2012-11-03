@@ -32,7 +32,7 @@ sharedLibs: Compass/compass.c GPSLib/gps.c
 	gcc -shared -fPIC -o sharedLibs/compassLib.so Compass/compass.c
 	gcc -shared -fPIC -o sharedLibs/gpsLib.so GPSLib/gps.c
 	gcc -shared -fPIC -o sharedLibs/waypointLib.so Waypoints/waypoint.c
-	gcc $(CFLAGS) -shared -fPIC -o sharedLibs/movementLib.so movement.c
+	gcc $(CFLAGS) -shared -fPIC -o sharedLibs/movementLib.so movement.c Waypoints/waypoint.c Compass/compass.c GPSLib/gps.c gpio.c
 
 cleanAll: 
 	rm movement movement.o gpio.o GPSLib/gps.o Compass/compass.o sharedLibs/*

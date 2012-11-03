@@ -201,6 +201,13 @@ void waypointManager(void){
 	free(newWP);
 }
 
+void initSensors(void){
+	// TODO: init the GPS here
+       fd = init_I2C();
+       init_compass(fd);
+       gpioInit();
+}
+
 void main(int * argv){
 	signal(SIGINT, signal_handler);
 

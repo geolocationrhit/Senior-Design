@@ -10,6 +10,8 @@ def initCompass():
 
 def initLibs():
 	global movementLib
+	global waypointLib
+	waypointLib = cdll.LoadLibrary('../sharedLibs/waypointLib.so')
 	movementLib = cdll.LoadLibrary('../sharedLibs/movementLib.so')
 	movementLib.turn.argtypes = [c_float]
 	movementLib.turn.restypes = [c_int]
@@ -22,7 +24,7 @@ class WP(Structure):
 def parseWP(command):
 	m = re.match('<NWP>([-+]?[0-9]*\.?[0-9]+) ([-+]?[0-9]*\.?[0-9]+)</NWP>', command)
 	print "Adding waypoint: {0} {1}".format(m.group(1),m.group(2))
-	waypointLib = cdll.LoadLibrary('../sharedLibs/waypointLib.so') # this is loaded every time, so I bet the waypoints don't save
+	#waypointLib = cdll.LoadLibrary('../sharedLibs/waypointLib.so') # this is loaded every time, so I bet the waypoints don't save
 	waypointLib.addWaypointxy.argtypes = [c_double,c_double]
 	waypointLib.addWaypoint.argtypes = [POINTER(WP)]
 	waypointLib.getCurrentWaypoint.restype = POINTER(WP)
@@ -89,7 +91,7 @@ if __name__ == "__main__":
 	server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
 
 	initLibs()
-
+	movementLib.initSensors()
 	# Activate the server; this will keep running until you
 	# interrupt the program with Ctrl-C
 	try:

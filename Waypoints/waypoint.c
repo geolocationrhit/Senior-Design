@@ -57,11 +57,13 @@ int returnToPreviousWaypoint(void){
 }
 
 double distanceBetweenPoints(waypoint A, waypoint B){
-	double deltax = (B.x - A.x) * d2r;
+	/** double deltax = (B.x - A.x) * d2r;
 	double deltay = (B.y - A.y) * d2r;
-	double a = pow(sin(deltay/2.0),2) + cos(A.y*d2r)*cos(B.y*d2r)*pow(sin(deltax/2.0),2);
+
 	double c = 2 * atan2(sqrt(a), sqrt(1-a));
 	double d = 6367 * c * 1000;
+	**/
+	double d = sqrt(pow(B.x - A.x,2)+pow(B.y - A.y,2));
 	return d;
 }
 
