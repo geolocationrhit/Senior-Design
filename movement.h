@@ -1,0 +1,11 @@
+int gpioInit(void);
+int testTurn(void);
+float wrap180(float);
+int turn(float);
+short bbCheck (double,double, waypoint, double);
+double findSlope(waypoint, waypoint);
+double * findLine(waypoint, waypoint, double *);
+int move(waypoint);
+void signal_handler(int);
+void moveForward(int);
+void waypointManager(void);

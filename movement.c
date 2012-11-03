@@ -3,6 +3,8 @@
 */
 
 //#include "GPS/gps.h"
+
+#define _BSD_SOURCE
 #include <string.h>
 #include "gpio.h"
 #include <unistd.h>
@@ -13,20 +15,15 @@
 #include <stdlib.h>
 #include "Waypoints/waypoint.h"
 #include "GPSLib/gps.h"
+#include "movement.h"
 
 #define LEFT_BCK_GPIO 71
-#define LEFT_FWD_GPIO 73
-#define RIGHT_BCK_GPIO 75
+#define LEFT_FWD_GPIO 75
+#define RIGHT_BCK_GPIO 73
 #define RIGHT_FWD_GPIO 77
 
 int fd;
 int keepGoing = 1;
-
-enum motorOps {
-	forward,
-	right,
-	left
-};
 
 int gpioInit(){
 	gpio_export(LEFT_FWD_GPIO);
@@ -39,26 +36,19 @@ int gpioInit(){
 	gpio_set_dir(RIGHT_BCK_GPIO, 1);
 }
 
-int motorControl(enum motorOps direction, short active){
-	switch(direction){
-		forward: break;
-		right: break;
-		left: break;
-	}
-}
-
 int testTurn(){
 	gpio_set_value(LEFT_FWD_GPIO, 1);
-	gpio_set_value(RIGHT_BCK_GPIO,1);
+	gpio_set_value(RIGHT_FWD_GPIO,1);
 	sleep(1);
 	gpio_set_value(LEFT_FWD_GPIO, 0);
-	gpio_set_value(RIGHT_BCK_GPIO,0);
-
+	gpio_set_value(RIGHT_FWD_GPIO,0);
+	sleep(1);
 	gpio_set_value(LEFT_BCK_GPIO, 1);
 	gpio_set_value(RIGHT_FWD_GPIO,1);
 	sleep(1);
 	gpio_set_value(LEFT_BCK_GPIO, 0);
 	gpio_set_value(RIGHT_FWD_GPIO,0);
+	
 }
 
 float wrap180(float angle){
@@ -128,6 +118,18 @@ void signal_handler(int sig)
 	keepGoing = 0;
 }
 
+void moveForward(int useconds){
+	gpio_set_value(LEFT_FWD_GPIO, 1);
+        gpio_set_value(LEFT_BCK_GPIO, 0);
+        gpio_set_value(RIGHT_FWD_GPIO, 1);
+        gpio_set_value(RIGHT_BCK_GPIO, 0);
+	usleep(useconds);
+	gpio_set_value(LEFT_FWD_GPIO, 0);
+        gpio_set_value(LEFT_BCK_GPIO, 0);
+        gpio_set_value(RIGHT_FWD_GPIO, 0);
+        gpio_set_value(RIGHT_BCK_GPIO, 0);
+}
+
 // 0.000011479429428388439 gps points per meter
 void waypointManager(void){
 	waypoint * newWP = (waypoint *) malloc(sizeof(waypoint));	
@@ -136,7 +138,7 @@ void waypointManager(void){
 	float turnHeading;
 	double tolerance = 3; // tolerance in meters
 	printf("Beginning\r\n");
-	addWaypointxy(-87.322640, 39.483910);
+	addWaypointxy(-87.322314, 39.483694);
 	newWP = getCurrentWaypoint();
 	printf("\r\nTrying to initialize GPS");
 	gpsRet = init_GPS();
@@ -165,12 +167,12 @@ void waypointManager(void){
 	printf("Line: m %lf, b %lf\r\n", line_mb[0], line_mb[1]);
 	int waypointsLeft = 1;
 	while(keepGoing && waypointsLeft){
-		while(keepGoing && distanceBetweenPoints(*curPosWP, *newWP) > tolerance){
+		while(keepGoing && distanceBetweenPoints(*curPosWP, *newWP) > tolerance*0.000011479429428388439){
 			// go straight		
-			printf("Going straight\r\ndistance to target: %lf\r\ntolerance: %lf\r\n", distanceBetweenPoints(*curPosWP, *newWP), tolerance);
-			//gpio_set_value(LEFT_FWD_GPIO, 1);
+			printf("Going straight\r\ndistance to target: %lf\r\ntolerance: %lf\r\n", distanceBetweenPoints(*curPosWP, *newWP), tolerance*0.000011479429428388439);
+			gpio_set_value(LEFT_FWD_GPIO, 1);
 			gpio_set_value(LEFT_BCK_GPIO, 0);
-			//gpio_set_value(RIGHT_FWD_GPIO, 1);
+			gpio_set_value(RIGHT_FWD_GPIO, 1);
 			gpio_set_value(RIGHT_BCK_GPIO, 0);	
 
 			curPosGPS = getGPS(gpsRet);
@@ -182,6 +184,7 @@ void waypointManager(void){
 				printf("We're outside of the bounds. Returning to the previous waypoint\r\n");
 				break; // out of the bounding box
 			}
+			sleep(2);
 		}
 		printf("We've hit the waypoint! Stopping the motors...\r\n");
 		gpio_set_value(LEFT_FWD_GPIO, 0);
@@ -204,7 +207,7 @@ void main(int * argv){
 	fd = init_I2C();
 	init_compass(fd);
 	gpioInit();
-	//testTurn();
+//	testTurn();
 	/**turn(45.0);
 	sleep(1);
 	turn(280.0);
