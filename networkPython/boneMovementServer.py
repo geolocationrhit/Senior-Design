@@ -13,10 +13,11 @@ def initLibs():
 	global waypointLib
 	waypointLib = cdll.LoadLibrary('../sharedLibs/waypointLib.so')
 	movementLib = cdll.LoadLibrary('../sharedLibs/movementLib.so')
+	#movementLib.getCompassHeading.argtypes = 
 	movementLib.turn.argtypes = [c_float]
 	movementLib.turn.restypes = [c_int]
 	movementLib.moveForward.argtypes = [c_int]
-	movementLib.getCompassHeading.restypes = c_float
+	movementLib.getCompassHeading.restype = c_float
 	#movementLib.getCompassHeading.argtypes = [c_void]
 
 class WP(Structure):
@@ -40,21 +41,24 @@ def parseMOVCMD(command):
 	if operation == "FWD":
 		print "Forward command received: " + option
 		movementLib.moveForward(int(option))
-		return "FWD command: " + option
+		return ""
 	elif operation == "BACK":
 		print "Back command received, but it's not implemented currently"
-		return "Back command: " + option
+		return ""
 	elif operation == "TURN":
 		print "Turn command received: " + option
 		movementLib.turn(float(option))
-		return "Turn command: " + option
-	elif operation == "COMPASSQ":
+		return ""
+	elif operation == "COMPASSQ": # move this to a different parser...it's not a movcmd
 		print "Compass query received"
 		print movementLib.getCompassHeading()
-		return "Compass query: " + movementLib.getCompassHeading()
+		return "Compass query: " + str(movementLib.getCompassHeading()) + " degrees"
+	elif operation == "GPSQ":
+		print "GPS query received"
+		return "GPS query: "
 	else:
 		print "No command received"
-		return "No command"
+		return "Not a valid movement command"
 
 def parseCommand(command):
 	comType = command[command.find("<")+1:command.find(">")]
@@ -85,12 +89,18 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 		print self.data
 		# just send back the same data, but upper-cased
 		cmdret = parseCommand(self.data)
-		self.request.sendall("Successfully executed command " + cmdret)
+		if cmdret == "":
+			self.request.sendall("Successfully executed command")
+		else:
+			self.request.sendall(cmdret);
 		while(self.data != "Exit"):
 			self.data = self.request.recv(1024).strip()
 			print self.data
 			cmdret = parseCommand(self.data)
-			self.request.sendall("Successfully executed command " + cmdret)
+			if cmdret == "":
+				self.request.sendall("Successfully executed command")
+			else:
+				self.request.sendall(cmdret);
 
 if __name__ == "__main__":
 	if len(sys.argv) == 3:

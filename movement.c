@@ -58,9 +58,7 @@ float wrap180(float angle){
 }
 
 float getCompassHeading(void){
-	float currentHeading = getHeading(fd);
-	printf("Got heading: %f\n", currentHeading);
-	return currentHeading;
+	return getHeading(fd);
 }
 
 int turn(float heading){
