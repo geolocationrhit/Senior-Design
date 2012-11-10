@@ -74,6 +74,11 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 		# just send back the same data, but upper-cased
 		parseCommand(self.data)
 		self.request.sendall("Successfully executed command")
+		while(self.data != "Exit"):
+			self.data = self.request.recv(1024).strip()
+			print self.data
+			parseCommand(self.data)
+			self.request.sendall("Successfully executed command")
 
 if __name__ == "__main__":
 	if len(sys.argv) == 3:

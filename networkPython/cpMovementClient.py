@@ -29,6 +29,8 @@ s.connect((TCP_IP, TCP_PORT))
 while True:
 	sel = raw_input("Selection: \r\n1: FWD\r\n2: BCK\r\n3: TURN\r\n9: EXIT\r\n")
 	if sel == 'EXIT' or sel == '9':
+		print "Sending Exit"	
+		s.send("Exit")
 		break
 	opt = raw_input("\r\nOption: ")
 	if sel == 'FWD' or sel == '1':
