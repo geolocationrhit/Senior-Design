@@ -52,6 +52,7 @@ def parseMOVCMD(command):
 		return "Compass query"
 	else:
 		print "No command received"
+		return "No command"
 
 def parseCommand(command):
 	comType = command[command.find("<")+1:command.find(">")]
@@ -86,7 +87,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 			self.data = self.request.recv(1024).strip()
 			print self.data
 			cmdret = parseCommand(self.data)
-			self.request.sendall("Successfully executed command" + cmdret)
+			self.request.sendall("Successfully executed command " + cmdret)
 
 if __name__ == "__main__":
 	if len(sys.argv) == 3:
