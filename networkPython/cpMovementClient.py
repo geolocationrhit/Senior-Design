@@ -47,7 +47,9 @@ while True:
 		s.send(cmd)
 	else:
 		print "Command not recognized"
+		continue
+	data = s.recv(BUFFER_SIZE)
+	print "received data:", data
 
-data = s.recv(BUFFER_SIZE)
-print "received data:", data
+
 s.close()
