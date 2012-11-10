@@ -39,11 +39,17 @@ def parseMOVCMD(command):
 	if operation == "FWD":
 		print "Forward command received: " + option
 		movementLib.moveForward(int(option))
+		return "FWD command: " + option
 	elif operation == "BACK":
 		print "Back command received, but it's not implemented currently"
+		return "Back command: " + option
 	elif operation == "TURN":
 		print "Turn command received: " + option
 		movementLib.turn(float(option))
+		return "Turn command: " + option
+	elif operation == "COMPASSQ":
+		print "Compass query received"
+		return "Compass query"
 	else:
 		print "No command received"
 
@@ -74,13 +80,13 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 		print "{} wrote:".format(self.client_address[0])
 		print self.data
 		# just send back the same data, but upper-cased
-		parseCommand(self.data)
-		self.request.sendall("Successfully executed command")
+		cmdret = parseCommand(self.data)
+		self.request.sendall("Successfully executed command " + cmdret)
 		while(self.data != "Exit"):
 			self.data = self.request.recv(1024).strip()
 			print self.data
-			parseCommand(self.data)
-			self.request.sendall("Successfully executed command")
+			cmdret = parseCommand(self.data)
+			self.request.sendall("Successfully executed command" + cmdret)
 
 if __name__ == "__main__":
 	if len(sys.argv) == 3:
