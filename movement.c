@@ -57,6 +57,12 @@ float wrap180(float angle){
 	return angle;
 }
 
+float getCompassHeading(void){
+	float currentHeading = getHeading(fd);
+	printf("Got heading: %f\n", currentHeading);
+	return currentHeading;
+}
+
 int turn(float heading){
 	float currentHeading = getHeading(fd);
 	float deltaHeading = wrap180(heading - currentHeading); // deltaheading: negative means turn left, positive means turn right

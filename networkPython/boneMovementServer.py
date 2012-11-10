@@ -16,7 +16,8 @@ def initLibs():
 	movementLib.turn.argtypes = [c_float]
 	movementLib.turn.restypes = [c_int]
 	movementLib.moveForward.argtypes = [c_int]
-
+	movementLib.getCompassHeading.restypes = c_float
+	#movementLib.getCompassHeading.argtypes = [c_void]
 
 class WP(Structure):
 	_fields_ = [("x",c_double),("y",c_double)]
@@ -33,7 +34,7 @@ def parseWP(command):
 	print "The waypoint in the queue was, x: {0} y: {1}".format(w.x,w.y)
 
 def parseMOVCMD(command):
-	m = re.match('<MOVCMD>(FWD|BACK|TURN) ([-+]?[0-9]*\.?[0-9]+)</MOVCMD>', command)
+	m = re.match('<MOVCMD>(FWD|BACK|TURN|COMPASSQ) ([-+]?[0-9]*\.?[0-9]+)</MOVCMD>', command)
 	operation = m.group(1);
 	option = m.group(2);
 	if operation == "FWD":
@@ -49,7 +50,8 @@ def parseMOVCMD(command):
 		return "Turn command: " + option
 	elif operation == "COMPASSQ":
 		print "Compass query received"
-		return "Compass query"
+		print movementLib.getCompassHeading()
+		return "Compass query: " + movementLib.getCompassHeading()
 	else:
 		print "No command received"
 		return "No command"
@@ -57,11 +59,12 @@ def parseMOVCMD(command):
 def parseCommand(command):
 	comType = command[command.find("<")+1:command.find(">")]
 	if comType == "NWP":
-		parseWP(command)
+		return parseWP(command)
 	elif comType == "MOVCMD":
-		parseMOVCMD(command)
+		return parseMOVCMD(command)
 	else:
 		print "Unknown command: " + comType
+		return "Unknown command"
 
 def newMovementCommand():
 	return "<MOVCMD>FWD 1.0 RIGHT 0.5</MOVCMD>\n"

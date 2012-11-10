@@ -9,3 +9,4 @@ int move(waypoint);
 void signal_handler(int);
 void moveForward(int);
 void waypointManager(void);
+float getCompassHeading(void);
