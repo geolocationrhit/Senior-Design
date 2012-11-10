@@ -45,6 +45,10 @@ while True:
 		cmd = newMovementCommand("TURN", float(opt))
 		print "Sending command " + cmd	
 		s.send(cmd)
+	elif sel == 'COMPASS Q' or sel == '4':
+		cmd = newMovementCommand("COMPASSQ", float(opt))
+		print "Sending command " + cmd	
+		s.send(cmd)		
 	else:
 		print "Command not recognized"
 		continue
