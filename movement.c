@@ -24,6 +24,7 @@
 
 int fd;
 int keepGoing = 1;
+int gpsRet;
 
 int gpioInit(){
 	gpio_export(LEFT_FWD_GPIO);
@@ -134,18 +135,22 @@ void moveForward(int useconds){
         gpio_set_value(RIGHT_BCK_GPIO, 0);
 }
 
+dataGPS getGPSlocation(void){
+	return getGPS(gpsRet);
+}
+
 // 0.000011479429428388439 gps points per meter
 void waypointManager(void){
 	waypoint * newWP = (waypoint *) malloc(sizeof(waypoint));	
 	dataGPS  curPosGPS;
-	int gpsRet;
+	//int gpsRet;
 	float turnHeading;
 	double tolerance = 3; // tolerance in meters
 	printf("Beginning\r\n");
 	addWaypointxy(-87.322314, 39.483694);
 	newWP = getCurrentWaypoint();
 	printf("\r\nTrying to initialize GPS");
-	gpsRet = init_GPS();
+	//gpsRet = init_GPS();
 	curPosGPS = getGPS(gpsRet);
 
 	if(!curPosGPS.valid){
@@ -210,6 +215,7 @@ void initSensors(void){
        fd = init_I2C();
        init_compass(fd);
        gpioInit();
+	gpsRet = init_GPS();
 }
 
 void main(int * argv){

@@ -18,7 +18,11 @@ def initLibs():
 	movementLib.turn.restypes = [c_int]
 	movementLib.moveForward.argtypes = [c_int]
 	movementLib.getCompassHeading.restype = c_float
+
+	movementLib.getGPSlocation.restype = dataGPS
 	#movementLib.getCompassHeading.argtypes = [c_void]
+class dataGPS(Structure):
+	_fields_ = [("x",c_double),("y",c_double),("time",c_double),("valid",c_int)]
 
 class WP(Structure):
 	_fields_ = [("x",c_double),("y",c_double)]
@@ -35,7 +39,7 @@ def parseWP(command):
 	print "The waypoint in the queue was, x: {0} y: {1}".format(w.x,w.y)
 
 def parseMOVCMD(command):
-	m = re.match('<MOVCMD>(FWD|BACK|TURN|COMPASSQ) ([-+]?[0-9]*\.?[0-9]+)</MOVCMD>', command)
+	m = re.match('<MOVCMD>(FWD|BACK|TURN|COMPASSQ|GPSQ) ([-+]?[0-9]*\.?[0-9]+)</MOVCMD>', command)
 	operation = m.group(1);
 	option = m.group(2);
 	if operation == "FWD":
@@ -55,7 +59,8 @@ def parseMOVCMD(command):
 		return "Compass query: " + str(movementLib.getCompassHeading()) + " degrees"
 	elif operation == "GPSQ":
 		print "GPS query received"
-		return "GPS query: "
+		gpsPoint = movementLib.getGPSlocation()
+		return "GPS query: long: {0}, lat: {1}, valid: {2}".format(gpsPoint.x,gpsPoint.y,gpsPoint.valid)
 	else:
 		print "No command received"
 		return "Not a valid movement command"
