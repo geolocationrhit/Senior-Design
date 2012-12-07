@@ -1,0 +1,6 @@
+#!/bin/bash
+# we changed /usr/sbin/NetworkManager to not be executable,
+# otherwise it overwrites these changes
+
+ifconfig eth0 192.168.10.2
+python /home/root/Senior-Design/SDRcode/magSquared.py 192.168.10.2 5005
