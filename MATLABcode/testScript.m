@@ -1,0 +1,1 @@
+fetch_all_sensor_data()
