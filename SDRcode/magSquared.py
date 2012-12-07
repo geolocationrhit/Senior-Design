@@ -27,26 +27,41 @@ class magSquared(gr.top_block):
 		##################################################
 		# Variables
 		##################################################
+		self.valdb = 0
 		self.variable_function_probe_0 = variable_function_probe_0 = 0
-		self.samp_rate = samp_rate = 70e3
+		self.samp_rate = samp_rate = 125e3
 		self.gain = gain = 50
 		self.center_freq = center_freq = 904e6
-
+		s = socket.socket()
 		##################################################
 		# Blocks
 		##################################################
+		def listener():
+			while True:
+				c,addr = s.accept()
+				data = c.recv(1024)
+				if (data == 'DataRequest'):
+					c.send("RSS:{0}".format(self.valdb))
+				c.close()
+
 		self.gr_probe_avg_mag_sqrd_x_0 = gr.probe_avg_mag_sqrd_c(0, 1e-3)
 		def _variable_function_probe_0_probe():
-			if(len(sys.argv) == 3):
-				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-				s.connect((sys.argv[1],int(sys.argv[2])))
+			
+			s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+			if len(sys.argv) == 3:
+				host = sys.argv[1]
+				port = int(sys.argv[2])
+			else:
+				host = "localhost"
+				port = 5006
+			s.bind((host,port))
+			s.listen(5)
+			serverThread = threading.Thread(target=listener)
+			serverThread.start()
 			while True:
 				val = self.gr_probe_avg_mag_sqrd_x_0.level()
 				if (val > 0):
-					valdb = 10 * math.log10(val)
-					print "Mag Squared (dB): {0}".format(valdb)
-					if(len(sys.argv) == 3):
-						s.send("Mag Squared (dB): {0}".format(valdb))
+					self.valdb = 10 * math.log10(val)
 				try: self.set_variable_function_probe_0(val)
 				except AttributeError, e: pass
 				time.sleep(1.0/(100))
@@ -100,6 +115,9 @@ class magSquared(gr.top_block):
 	def set_center_freq(self, center_freq):
 		self.center_freq = center_freq
 		self.uhd_usrp_source_0.set_center_freq(self.center_freq, 0)
+
+
+		
 
 if __name__ == '__main__':
 	parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
