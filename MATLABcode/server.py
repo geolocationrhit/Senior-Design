@@ -1,10 +1,41 @@
 import SocketServer
+import socket
 import sys
+from ctypes import *
+
+def initLibs():
+	global movementLib
+	global waypointLib
+	waypointLib = cdll.LoadLibrary('../sharedLibs/waypointLib.so')
+	movementLib = cdll.LoadLibrary('../sharedLibs/movementLib.so')
+	#movementLib.getCompassHeading.argtypes = 
+	movementLib.turn.argtypes = [c_float]
+	movementLib.turn.restypes = [c_int]
+	movementLib.moveForward.argtypes = [c_int]
+	movementLib.getCompassHeading.restype = c_float
+
+	movementLib.getGPSlocation.restype = dataGPS
+	#movementLib.getCompassHeading.argtypes = [c_void]
+
+class dataGPS(Structure):
+	_fields_ = [("x",c_double),("y",c_double),("time",c_double),("valid",c_int)]
 
 def newDataMessage():
 	#wayPoint = computeNewLocation(0)
 	#return "<NWP>{0} {1}</NWP>\n".format(wayPoint[0],wayPoint[1])
-	return "LAT:29.2 LONG:30.124 TIME:12949129 HEADING:0.2141 RSS:-34.1\n"
+	# Get RSS data from the SDR over ethernet
+	s = socket.socket()
+	s.connect(('192.168.10.2',5005))
+	s.send('DataRequest')
+	SDRdata = s.recv(1024)
+	print "Received from SDR: {0}".format(SDRdata)
+	s.close
+
+	# get GPS data from the GPS
+	gpsPoint = movementLib.getGPSlocation()
+	#return "GPS query: long: {0}, lat: {1}, valid: {2}".format(gpsPoint.x,gpsPoint.y,gpsPoint.valid)
+	
+	return "LAT:{0} LONG:{1} TIME:{2} HEADING:{3} RSS:{4}\n".format(gpsPoint.y,gpsPoint.x,gpsPoint.time,movementLib.getCompassHeading(),SDRdata[4:])
 
 def newMovementCommand():
 	return "<MOVCMD>FWD 1.0 RIGHT 0.5</MOVCMD>\n"
@@ -34,6 +65,9 @@ if __name__ == "__main__":
 	else:
 		HOST = "localhost"
 		PORT = 5006
+
+	initLibs()
+	movementLib.initSensors()
 
 	# Create the server, binding to localhost on port 9999
 	print "Setting up a server at " + HOST + " on port " + str(PORT)
