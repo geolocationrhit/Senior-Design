@@ -29,6 +29,7 @@ movement: movement.o gpio.o GPSLib/gps.o Compass/compass.o Waypoints/waypoint.o
 
 .PHONY: sharedLibs
 sharedLibs: Compass/compass.c GPSLib/gps.c
+	mkdir -p sharedLibs
 	gcc -shared -fPIC -o sharedLibs/compassLib.so Compass/compass.c
 	gcc -shared -fPIC -o sharedLibs/gpsLib.so GPSLib/gps.c
 	gcc -shared -fPIC -o sharedLibs/waypointLib.so Waypoints/waypoint.c
