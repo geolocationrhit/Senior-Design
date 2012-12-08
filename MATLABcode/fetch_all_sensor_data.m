@@ -7,7 +7,7 @@ function [allSensorData] = fetch_all_sensor_data()
         disp('Intializing sensors variable')
         sensors = 1;
     else
-        fetch_sensor_data(sensors)
+        data = fetch_sensor_data(sensors)
     end
 
 end

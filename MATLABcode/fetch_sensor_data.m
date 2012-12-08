@@ -1,23 +1,32 @@
 % function [lat, lon, time, heading, RSS] = fetch_sensor_data(sensor_id)
 function [dataStruct] = fetch_sensor_data(sensor_id)
 
-t = tcpip('127.0.0.1',5006);
+t = tcpip('192.168.2.3',5005);
 
 fopen(t);
 
 fprintf(t, sprintf('DataQuery for sensor %d', sensor_id));
 
-pause(1);
+%pause(1);
 
 set(t,'Terminator','LF')
 
+while(get(t,'BytesAvailable') == 0)
+   % do nothing 
+end
+
 while (get(t,'BytesAvailable') > 0)
-        t.BytesAvailable
+        t.BytesAvailable;
         dataReceived = fscanf(t)
 end
 
-parsedData = sscanf(dataReceived,'LAT:%f LONG:%f TIME:%d HEADING:%f RSS:%f');
-dataStruct = struct('lat', parsedData(1),'long',parsedData(2),'time',parsedData(3),'heading',parsedData(4),'RSS',parsedData(5))
+%parsedData = sscanf(dataReceived,'LAT:%f LONG:%f TIME:%f HEADING:%f RSS:%f');
+parsedData = regexp(dataReceived,'[-+]?[0-9]*\.?[0-9]+','match');
+dataStruct = struct('lat', str2double(parsedData{1}), ...
+    'long',str2double(parsedData{2}), ...
+    'time',str2double(parsedData{3}), ...
+    'heading',str2double(parsedData{4}), ...
+    'RSS',str2double(parsedData{5}))
 
 fclose(t);
 delete(t);
