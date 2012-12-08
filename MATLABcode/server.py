@@ -2,12 +2,14 @@ import SocketServer
 import socket
 import sys
 from ctypes import *
+import os
 
 def initLibs():
 	global movementLib
 	global waypointLib
-	waypointLib = cdll.LoadLibrary('../sharedLibs/waypointLib.so')
-	movementLib = cdll.LoadLibrary('../sharedLibs/movementLib.so')
+	dir = os.path.dirname(__file__)
+	waypointLib = cdll.LoadLibrary(os.path.join(dir,'../sharedLibs/waypointLib.so'))
+	movementLib = cdll.LoadLibrary(os.path.join(dir,'../sharedLibs/movementLib.so'))
 	#movementLib.getCompassHeading.argtypes = 
 	movementLib.turn.argtypes = [c_float]
 	movementLib.turn.restypes = [c_int]
