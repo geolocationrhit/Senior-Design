@@ -18,11 +18,9 @@ MESSAGE = "Hello, World!\n"
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 print "Connecting to " + TCP_IP + " on port " + str(TCP_PORT)
 s.connect((TCP_IP, TCP_PORT))
-s.send("register\n")
-s.send("hello\n")
-s.send("is anyone there?")
+s.send(TCP_IP + "\n")
 #s.send(gpsMessage() + antennaMessage())
-data = s.recv(BUFFER_SIZE)
-print "received data:", data
-parseCommand(data)
+#data = s.recv(BUFFER_SIZE)
+#print "received data:", data
+#parseCommand(data)
 s.close()
