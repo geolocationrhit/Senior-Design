@@ -1,7 +1,7 @@
 % [lat, long, time, heading, RSS] = fetch_sensor_data(sensor_id)
 
 u = udp('127.0.0.1', 5007, 'LocalPort', 5007)
-u.Timeout = 30.0;
+u.Timeout = 3.0;
 set(u,'Terminator','LF')
 fopen(u);
 
@@ -22,7 +22,7 @@ newTime = clock;
 %dataReceived = fread(t,t.bytesAvailable,'char')
 sensors = {};
 i = 1;
-while(etime(newTime,startTime) < 30)
+while(etime(newTime,startTime) < 10)
     %{
     while(u.bytesAvailable == 0 && etime(newTime,startTime) < 30)
         newTime = clock;
@@ -31,10 +31,13 @@ while(etime(newTime,startTime) < 30)
     
     dataReceived = fscanf(u);
     if(~isempty(dataReceived))
-       sensors{i} = dataReceived; 
+       arrayOfIPs = [sensors{:}];
+       if(isempty(strfind(arrayOfIPs,dataReceived)));
+           sensors{i} = dataReceived; 
+           i = i + 1;
+       end
     end
     newTime = clock;
-    i = i + 1;
 end
 
 
