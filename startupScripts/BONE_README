@@ -1,0 +1,3 @@
+"interfaces" goes in /etc/network
+"startupScript.sh" goes in /etc/init.d/, and rc.local goes in /etc/
+"75-persistent-net-generator.rules" goes in /lib/udev/rules.d/
