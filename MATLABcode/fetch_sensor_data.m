@@ -1,13 +1,13 @@
 % function [lat, lon, time, heading, RSS] = fetch_sensor_data(sensor_id)
 function [dataStruct] = fetch_sensor_data(sensor_id)
 
-t = tcpip('192.168.2.4',5005);
-
+t = tcpip(sensor_id,5005); % this was hardcoded before when everything worked....in case this quits working for some reason
+                            % and we need to revert
 fopen(t);
 
 set(t,'Terminator','LF')
 
-fprintf(t, sprintf('DataQuery for sensor %d', sensor_id));
+fprintf(t, sprintf('DataQuery for sensor %s', sensor_id));
 
 %pause(1);
 

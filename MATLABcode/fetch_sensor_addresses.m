@@ -1,4 +1,6 @@
 function [sensor_addresses] = fetch_sensor_addresses()
+    warning off instrument:fscanf:unsuccessfulRead % suppress warnings about terminators not being reached
+    
     u = udp('127.0.0.1', 5007, 'LocalPort', 5007);
     u.Timeout = 3.0;
     set(u,'Terminator','LF')

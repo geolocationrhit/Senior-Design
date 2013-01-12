@@ -8,9 +8,9 @@ function [allSensorData] = fetch_all_sensor_data(sensor_addresses)
         %disp('Intializing sensors variable')
         %sensors = 1;
     else
-        for sensor=sensor_addresses;
-            disp(['Fetching data from: ',sensor{1}])
-            data = fetch_sensor_data(sensor{1})
+        for i=1:length(sensor_addresses);
+            disp(['Fetching data from: ',sensor_addresses{i}])
+            data = fetch_sensor_data(sensor_addresses{i})
         end
         
     end
