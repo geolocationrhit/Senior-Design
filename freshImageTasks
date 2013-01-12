@@ -1,0 +1,4 @@
+- make sure compass has the correct I2C address
+- make all of the files in the directory...the compass may have issues (continuous mode not getting set)
+- all of the startupScript biz (it should be in /etc/init.d/, the symlink into rc.local, etc)
+- if eth problems, check udev rules
