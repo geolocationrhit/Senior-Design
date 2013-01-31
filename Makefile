@@ -27,6 +27,9 @@ Waypoints/waypoint.o: Waypoints/waypoint.c
 movement: movement.o gpio.o GPSLib/gps.o Compass/compass.o Waypoints/waypoint.o
 	gcc $(CFLAGS) $^ -lm -o $@
 
+calibrateCompass: Compass/calibrate.c Compass/compass.c
+	gcc $(CFLAGS) $^ -o Compass/calibrate
+
 .PHONY: sharedLibs
 sharedLibs: Compass/compass.c GPSLib/gps.c
 	mkdir -p sharedLibs
