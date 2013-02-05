@@ -4,6 +4,9 @@ import sys
 from ctypes import *
 import os
 
+global librariesLoaded 
+
+
 def initLibs():
 	global movementLib
 	global waypointLib
@@ -26,6 +29,12 @@ def newDataMessage():
 	#wayPoint = computeNewLocation(0)
 	#return "<NWP>{0} {1}</NWP>\n".format(wayPoint[0],wayPoint[1])
 	# Get RSS data from the SDR over ethernet
+	global librariesLoaded
+	if(~librariesLoaded):
+		initLibs()
+		movementLib.initSensors()
+		librariesLoaded = True
+
 	s = socket.socket()
 	s.connect(('192.168.10.2',5005))
 	s.send('DataRequest')
@@ -67,9 +76,10 @@ if __name__ == "__main__":
 	else:
 		HOST = "localhost"
 		PORT = 5006
-
-	initLibs()
-	movementLib.initSensors()
+	global librariesLoaded
+	librariesLoaded = False
+	#initLibs()
+	#movementLib.initSensors()
 
 	# Create the server, binding to localhost on port 9999
 	print "Setting up a server at " + HOST + " on port " + str(PORT)
