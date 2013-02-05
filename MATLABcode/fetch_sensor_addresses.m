@@ -15,8 +15,9 @@ function [sensor_addresses] = fetch_sensor_addresses()
         dataReceived = fscanf(u);
         if(~isempty(dataReceived))
            arrayOfIPs = [sensor_addresses{:}];
-           if(isempty(strfind(arrayOfIPs,dataReceived)));
-               sensor_addresses{i} = dataReceived; 
+           newIP = strtrim(dataReceived);
+           if(isempty(strfind(arrayOfIPs,newIP)));
+               sensor_addresses{i} = newIP; 
                i = i + 1;
            end
         end
