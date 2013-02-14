@@ -18,13 +18,13 @@ GPSLib/gps.o: GPSLib/gps.c
 Compass/compass.o: Compass/compass.c
 	gcc $(CFLAGS) -c $^ -o $@
 
-gpio.o: gpio.c
+gpio_i2c/gpio.o: gpio_i2c/gpio.c
 	gcc $(CFLAGS) -c $^ -o $@
 
 Waypoints/waypoint.o: Waypoints/waypoint.c
 	gcc $(CFLAGS) -c $^ -o $@ 
 
-movement: movement.o gpio.o GPSLib/gps.o Compass/compass.o Waypoints/waypoint.o
+movement: movement.o gpio_i2c/gpio.o GPSLib/gps.o Compass/compass.o Waypoints/waypoint.o
 	gcc $(CFLAGS) $^ -lm -o $@
 
 .PHONY: calibrateCompass
@@ -42,9 +42,9 @@ sharedLibs: Compass/compass.c GPSLib/gps.c
 	gcc -shared -fPIC -o sharedLibs/compassLib.so Compass/compass.c
 	gcc -shared -fPIC -o sharedLibs/gpsLib.so GPSLib/gps.c
 	gcc -shared -fPIC -o sharedLibs/waypointLib.so Waypoints/waypoint.c
-	gcc $(CFLAGS) -shared -fPIC -o sharedLibs/movementLib.so movement.c Waypoints/waypoint.c Compass/compass.c GPSLib/gps.c gpio.c
+	gcc $(CFLAGS) -shared -fPIC -o sharedLibs/movementLib.so movement.c Waypoints/waypoint.c Compass/compass.c GPSLib/gps.c gpio_i2c/gpio.c
 
 cleanAll: 
-	rm -f movement movement.o gpio.o GPSLib/gps.o Compass/compass.o sharedLibs/* GPSLib/main Compass/main Compass/calibrate
+	rm -f movement movement.o gpio_i2c/gpio.o GPSLib/gps.o Compass/compass.o sharedLibs/* GPSLib/main Compass/main Compass/calibrate
 
 

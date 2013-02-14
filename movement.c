@@ -6,9 +6,9 @@
 
 #define _BSD_SOURCE
 #include <string.h>
-#include "gpio.h"
+#include "gpio_i2c/gpio.h"
 #include <unistd.h>
-#include "i2c-dev.h"
+#include "gpio_i2c/i2c-dev.h"
 #include "Compass/compass.h" // booooooo
 #include <stdio.h>
 #include <signal.h>
