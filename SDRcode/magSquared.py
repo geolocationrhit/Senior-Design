@@ -31,7 +31,7 @@ class magSquared(gr.top_block):
 		self.variable_function_probe_0 = variable_function_probe_0 = 0
 		self.samp_rate = samp_rate = 125e3
 		self.gain = gain = 50
-		self.center_freq = center_freq = 904e6
+		self.center_freq = center_freq = 925e6#904e6
 		s = socket.socket()
 		##################################################
 		# Blocks

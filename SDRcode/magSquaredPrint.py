@@ -31,7 +31,7 @@ class magSquared(gr.top_block):
 		self.variable_function_probe_0 = variable_function_probe_0 = 0
 		self.samp_rate = samp_rate = 125e3
 		self.gain = gain = 50
-		self.center_freq = center_freq = 904e6
+		self.center_freq = center_freq = 925e6
 		s = socket.socket()
 		##################################################
 		# Blocks
@@ -62,10 +62,10 @@ class magSquared(gr.top_block):
 				val = self.gr_probe_avg_mag_sqrd_x_0.level()
 				if (val > 0):
 					self.valdb = 10 * math.log10(val)
+					print self.valdb
 				try: self.set_variable_function_probe_0(val)
 				except AttributeError, e: pass
-				print self.valdb
-				time.sleep(1.0/(10))
+				time.sleep(1.0/(7))
 		_variable_function_probe_0_thread = threading.Thread(target=_variable_function_probe_0_probe)
 		_variable_function_probe_0_thread.daemon = True
 		_variable_function_probe_0_thread.start()
