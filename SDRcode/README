@@ -1,6 +1,6 @@
 To get networking including static IP addresses to work on a new SDR:
 
-1: replace /etc/network/interface with the inteface file located in this folder
+1: replace /etc/network/interfaces with the intefaces file located in this folder
 2: place S99startupScript in /etc/init.d/
 3: create a symbolic link to S99startupScript and place it in /etc/rc5.d/
 4: make /usr/sbin/NetworkManager unexecutable
